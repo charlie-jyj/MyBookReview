@@ -60,6 +60,7 @@ extension ReviewListPresenter: UITableViewDataSource, UITableViewDelegate {
             content.image = UIImage(data: data)
         }
         cell.contentConfiguration = content
+        cell.selectionStyle = .none
         return cell
     }
     

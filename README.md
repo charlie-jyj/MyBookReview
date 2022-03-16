@@ -16,6 +16,9 @@
    3. ViewController: View 수정, 설정, 추가
 
 
+<img src="https://i.stack.imgur.com/nlBh0.png">
+
+
 ```swift
 final class BookReviewPresenter {
    var  model = Model()
