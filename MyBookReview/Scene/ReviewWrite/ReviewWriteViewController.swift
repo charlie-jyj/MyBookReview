@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 final class ReviewWriteViewController: UIViewController {
     private lazy var presenter:ReviewWritePresenter = ReviewWritePresenter(viewController: self)
@@ -24,7 +25,7 @@ final class ReviewWriteViewController: UIViewController {
     private lazy var contentsTextView: UITextView = {
         let textView = UITextView()
         textView.textColor = UIColor.tertiaryLabel
-        textView.text = "내용을 입력해주세요."
+        textView.text = placeholder
         textView.font = .systemFont(ofSize: 16.0, weight: .medium)
         
         textView.delegate = self
@@ -38,6 +39,9 @@ final class ReviewWriteViewController: UIViewController {
         imageView.backgroundColor = .secondarySystemBackground
         return imageView
     }()
+    
+    private var imageURL: URL? = URL(string: "")
+    var placeholder: String = "내용을 입력해주세요."
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,7 +74,7 @@ extension ReviewWriteViewController: ReviewWriteProtocol {
         present(alert, animated: true, completion: nil)
     }
     
-    func close() {
+    func dismiss() {
         dismiss(animated: true, completion: nil)
     }
     
@@ -101,9 +105,17 @@ extension ReviewWriteViewController: ReviewWriteProtocol {
         }
     }
     
-    func showSearchBookController() {
-        let viewController = UINavigationController(rootViewController: SearchBookController())
+    func presentToSearchBookViewController() {
+        let viewController = UINavigationController(
+            rootViewController: SearchBookViewController(searchBookDelegate: presenter))
         present(viewController, animated: true, completion: nil)
+    }
+    
+    func filloutBookInfo(from book:Book) {
+        bookTitleButton.setTitle(book.title, for: .normal)
+        bookTitleButton.setTitleColor(UIColor.label, for: .normal)
+        imageURL = book.imageURL
+        imageView.kf.setImage(with: book.imageURL)
     }
 }
 
@@ -115,13 +127,16 @@ extension ReviewWriteViewController: UITextViewDelegate {
     }
 }
 
+
 private extension ReviewWriteViewController {
     @objc func didTapLeftBarButtonItem() {
         presenter.didTapLeftBarButtonItem()
     }
     
     @objc func didTapRightBarButtonItem() {
-        presenter.didTapRightBarButtonItem()
+        guard let content = contentsTextView.text, content != placeholder else { return }
+        let review = Review(title: bookTitleButton.titleLabel?.text ?? "", content: content, imageURL: imageURL)
+        presenter.didTapRightBarButtonItem(review)
     }
     
     @objc func touchUpInsideBookTitleButton() {

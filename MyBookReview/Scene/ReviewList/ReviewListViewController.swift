@@ -14,6 +14,7 @@ final class ReviewListViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.dataSource = presenter
+        tableView.delegate = presenter
         return tableView
     }()
 

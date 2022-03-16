@@ -10,15 +10,18 @@ import Foundation
 protocol ReviewWriteProtocol {
     func setupNavigationBar()
     func showCloseAlertSheet()
-    func close()
+    func dismiss()
     func setupViews()
-    func showSearchBookController()
+    func presentToSearchBookViewController()
+    func filloutBookInfo(from book:Book)
 }
 
 final class ReviewWritePresenter: NSObject {
     private let viewController: ReviewWriteProtocol
+    private let userDefaultManger = UserDefaultManager()
     
-    init(viewController: ReviewWriteProtocol) {
+    init(
+        viewController: ReviewWriteProtocol) {
         self.viewController = viewController
     }
     
@@ -31,13 +34,21 @@ final class ReviewWritePresenter: NSObject {
         viewController.showCloseAlertSheet()
     }
     
-    func didTapRightBarButtonItem() {
-        // user가 작성한 도서 리뷰 저장하기
-        viewController.close()
+    func didTapRightBarButtonItem(_ review: Review) {
+        userDefaultManger.setReviews(review)
+        viewController.dismiss()
     }
     
     func touchUpInsideBookTitleButton() {
-        viewController.showSearchBookController()
+        viewController.presentToSearchBookViewController()
     }
     
 }
+
+extension ReviewWritePresenter: SearchBookDelegate {
+    func selectBook(_ book: Book) {
+        viewController.filloutBookInfo(from: book)
+    }
+}
+
+
