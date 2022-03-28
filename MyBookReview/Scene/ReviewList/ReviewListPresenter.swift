@@ -22,10 +22,13 @@ protocol ReviewDetailProtocol {
 final class ReviewListPresenter: NSObject {
     private let viewController: ReviewListProtocol
     private var reviewList: [Review] = []
-    private let userDefaultManager = UserDefaultManager()
+    private let userDefaultManager : UserDefaultManagerProtocol
     
-    init(viewController: ReviewListProtocol) {
+    init(
+        viewController: ReviewListProtocol,
+        userDefaultManager: UserDefaultManagerProtocol = UserDefaultManager()) {
         self.viewController = viewController
+        self.userDefaultManager = userDefaultManager
     }
     
     func viewDidLoad() {
@@ -34,6 +37,7 @@ final class ReviewListPresenter: NSObject {
     }
     
     func viewWillAppear() {
+        reviewList = userDefaultManager.getReviews()
         viewController.reloadTableView()
     }
     
@@ -45,12 +49,12 @@ final class ReviewListPresenter: NSObject {
 
 extension ReviewListPresenter: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        userDefaultManager.getReviews().count
+        reviewList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
-        let review = userDefaultManager.getReviews()[indexPath.row]
+        let review = reviewList[indexPath.row]
         var content = cell.defaultContentConfiguration()
         
         content.text = "\(review.title)"

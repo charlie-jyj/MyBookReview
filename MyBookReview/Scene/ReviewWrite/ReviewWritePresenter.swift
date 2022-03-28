@@ -18,11 +18,16 @@ protocol ReviewWriteProtocol {
 
 final class ReviewWritePresenter: NSObject {
     private let viewController: ReviewWriteProtocol
-    private let userDefaultManger = UserDefaultManager()
+    private let userDefaultManager: UserDefaultManagerProtocol
+    var book: Book?
+    var placeholder: String = "내용을 입력해주세요."
     
     init(
-        viewController: ReviewWriteProtocol) {
+        viewController: ReviewWriteProtocol,
+        userDefaultManager: UserDefaultManagerProtocol = UserDefaultManager())
+    {
         self.viewController = viewController
+        self.userDefaultManager = userDefaultManager
     }
     
     func viewDidLoad() {
@@ -34,8 +39,19 @@ final class ReviewWritePresenter: NSObject {
         viewController.showCloseAlertSheet()
     }
     
-    func didTapRightBarButtonItem(_ review: Review) {
-        userDefaultManger.setReviews(review)
+    func didTapRightBarButtonItem(contentsText: String?) {
+        guard
+            let book = book,
+            let contentsText = contentsText, 
+            contentsText != placeholder
+        else { return }
+
+        let bookReview = Review(
+            title: book.title,
+            content: contentsText,
+            imageURL: book.imageURL
+        )
+        userDefaultManager.setReviews(bookReview)
         viewController.dismiss()
     }
     
@@ -47,6 +63,7 @@ final class ReviewWritePresenter: NSObject {
 
 extension ReviewWritePresenter: SearchBookDelegate {
     func selectBook(_ book: Book) {
+        self.book = book
         viewController.filloutBookInfo(from: book)
     }
 }

@@ -134,9 +134,7 @@ private extension ReviewWriteViewController {
     }
     
     @objc func didTapRightBarButtonItem() {
-        guard let content = contentsTextView.text, content != placeholder else { return }
-        let review = Review(title: bookTitleButton.titleLabel?.text ?? "", content: content, imageURL: imageURL)
-        presenter.didTapRightBarButtonItem(review)
+        presenter.didTapRightBarButtonItem(contentsText: contentsTextView.text)
     }
     
     @objc func touchUpInsideBookTitleButton() {
