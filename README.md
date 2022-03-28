@@ -63,3 +63,69 @@ extension BookReviewViewController: BookReviewProtocol {
 ```
 
 ### 2. 새롭게 알게 된 것
+
+#### 🤓 delegate pattern 적용된 코드 뜯어보기
+
+1. SearchBookPresenter
+
+```swift
+protocol SearchBookDelegate {
+    func selectBook(_ book: Book)
+}
+
+final class SearchBookPresenter: NSObject {
+    private let viewController: SearchBookProtocol
+    private let delegate: SearchBookDelegate
+    
+    ...
+    
+extension SearchBookPresenter: UITableViewDataSource, UITableViewDelegate {
+    ...
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // 책 선택 후 객체를 넘긴다.
+        self.delegate.selectBook(bookList[indexPath.row])
+        viewController.dismiss()
+    }
+}
+
+```
+
+2. ReviewWritePresenter
+
+```swift
+
+    func touchUpInsideBookTitleButton() {
+        viewController.presentToSearchBookViewController()
+    }
+
+extension ReviewWritePresenter: SearchBookDelegate {
+    func selectBook(_ book: Book) {
+        self.book = book
+        viewController.filloutBookInfo(from: book)
+    }
+}
+
+v
+```
+
+3. ReviewWriteViewController
+
+```swift
+final class ReviewWriteViewController: UIViewController {
+    private lazy var presenter:ReviewWritePresenter = ReviewWritePresenter(viewController: self)
+    ...
+    
+    func presentToSearchBookViewController() {
+        let viewController = UINavigationController(
+            rootViewController: SearchBookViewController(searchBookDelegate: presenter))
+        present(viewController, animated: true, completion: nil)
+    }
+
+```
+
+
+- 이벤트(book list selected) 발행의 주체는 SearchBookPresenter
+    - delegate protocol을 작성한다
+    - var delegate를 가진다
+- SearchBookPresenter 역할을 확장 시키는 event listener 는 ReviewWritePresenter
+    - delegate protocol을 구현한다
